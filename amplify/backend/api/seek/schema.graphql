@@ -1,0 +1,15 @@
+type Application
+  @model
+  @auth(
+    rules: [
+      { allow: owner }
+    ]
+  ) {
+  user_id: ID!
+  application_id: ID!
+  job_title: String!
+  job_link: String
+  job_description: String!
+  date_applied: String!
+  skills: [String]!
+}

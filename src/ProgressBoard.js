@@ -1,20 +1,24 @@
-import React from 'react';
+// import React, { useState, useEffect } from "react";
+import React from "react";
+import {Button} from 'semantic-ui-react';
 
-class ProgressBoard extends React.Component {
-    constructor(props) {
-        super(props);
-        this.state = {
-        };
-    }
+const ProgressBoard = (props) => {
+    // const [state, setState] = useState({
+    // })
 
-    render(){
-        return (
-            <div>
-                Progress Board
-            </div>
-        );
-    }
-    
+    return (
+      <div>
+        <div>Progress Board</div>
+        <Button
+          className="ui green button"
+          onClick={() => {
+            props.pageView();
+          }}
+        >
+          Back
+        </Button>
+      </div>
+    );
 }
 
 export default ProgressBoard;

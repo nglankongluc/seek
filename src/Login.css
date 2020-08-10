@@ -1,0 +1,54 @@
+.html{
+    height: 100%;
+    background-color:grey;
+}
+
+.body{
+    height: 100%;
+}
+
+.wrapper{
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    height: 100%;
+    background-color:grey;
+}
+
+.content{
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    margin: auto;
+}
+
+.loginView{
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    margin: auto;
+    height: 100%;
+}
+
+.column{
+    display: flex;
+    flex-direction: column;
+    width: 500px;
+    height: 200px;
+}
+
+.signup{
+    height: 250px;
+}
+
+.submit{
+    margin-top: 14px;
+}
+
+.switchView{
+    display: flex;
+    justify-content: center;
+    width: 100%;
+}

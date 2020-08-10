@@ -1,170 +1,146 @@
-import React from 'react';
-import {Button} from 'semantic-ui-react';
-import JobDescription from './JobDescription.js'
-import ApplicationListItem from './ApplicationListItem.js';
+import React, { useState, useContext } from "react";
+import { Button } from "semantic-ui-react";
+import JobDescription from "./JobDescription.js";
+import ApplicationListItem from "./ApplicationListItem.js";
+import Login from "./Login.js";
+import {UserContext} from "./App.js";
 
-class Homepage extends React.Component {
-    constructor(props) {
-        super(props);
-        this.state = {
-            application_count: 0,
-            isLoaded: false,
-            error: null,
-            selectedJob: 0,
-            items: null
-        };
-    }
+const Homepage = (props) => {
+    const [state, setState] = useState({
+        selectedJob: 0,
+    });
 
-    componentDidMount(){
+    const accInfo = useContext(UserContext);
 
-        // TODO: AJAX request
-        // fetch("https://api.example.com/items")
-        //     .then(res => res.json())
-        //     .then(
-        //         (result) => {
-        //             this.setState({
-        //                 isLoaded: true,
-        //                 applications: result.items
-        //             });
-        //         },
-        //         (error) => {
-        //             this.setState({
-        //                 isLoaded: true,
-        //                 error
-        //             });
-        //         }
-        //     )
+    const selectJob = (index) => {
+        setState({...state, selectedJob: index});
+    };
 
-        // TEMPORARY
-        let result = {
-            applications_count: 2,
-            applications: [
-                {
-                    job_title: "Software Engineer",
-                    job_company: "google",
-                    job_link: "https://www.linkedin.com",
-                    job_description: "Lorem Ipsum is simply dummy text t of the printing and typesetting industry.",
-                    skills: ["React", "Java", "SQL"],
-                    date_applied: "07/20/20"
-                },
-                {
-                    job_title: "Site Reliability Engineer",
-                    job_company: "amazon",
-                    job_link: "https://www.glassdoor.com",
-                    job_description: "Lorem Ipsum is simply dummy text of the printing and typesetting industry. Lorem Ipsum has been the industry's standard dummy text ever since the 1500s, when an unknown printer took a galley of type and scrambled it to make a type specimen book. It has survived not only five centuries, but also the leap into electronic typesetting, remaining essentially unchanged. It was popularised in the 1960s with the release of Letraset sheets containing Lorem Ipsum passages, and more recently with desktop publishing software like Aldus PageMaker including versions of Lorem Ipsum.",
-                    skills: ["Docker", "Kubernetes", "AWS"],
-                    date_applied: "07/21/20"
-                },
-            ]
-        }
+    const loadApplicationsList = () => {
+      return props.items.applications.map((item, index) => (
+        <ApplicationListItem
+          key={`application_item_${index}`}
+          date={item.date_applied}
+          item={item}
+          index={index}
+          selectJob={selectJob}
+        />
+      ));
+    };
 
-        this.setState({
-            isLoaded: true,
-            application_count: result.applications_count,
-            items: result
-        })
-    }
+    // const sortByDate = (order) => {
+    //   let sortedItems = props.items;
+    //   if (order === "asc") {
+    //     sortedItems.applications.sort((a, b) => {
+    //       return Date.parse(a.date_applied) - Date.parse(b.date_applied);
+    //     });
+    //   } else {
+    //     // descending
+    //     sortedItems.applications.sort((a, b) => {
+    //       return Date.parse(b.date_applied) - Date.parse(a.date_applied);
+    //     });
+    //   }
+    //   setState({...state, items: sortedItems});
+    // };
 
-    selectJob = (index) => {
-        this.setState({
-            selectedJob: index
-        });
-    }
+    // const sortByCompany = (order) => {
+    //   let sortedItems = props.items;
+    //   if (order === "asc") {
+    //     sortedItems.applications.sort((a, b) => {
+    //       if (a.job_company > b.job_company) {
+    //         return 1;
+    //       } else {
+    //         return -1;
+    //       }
+    //     });
+    //   } else {
+    //     // descending
+    //     sortedItems.applications.sort((a, b) => {
+    //       if (a.job_company < b.job_company) {
+    //         return 1;
+    //       } else {
+    //         return -1;
+    //       }
+    //     });
+    //   }
+    //   setState({...state, items: sortedItems});
+    // };
 
-    loadApplicationsList = () => {
+    const getJobDescription = () => {
+      let applications_list_empty = true;
+
+      if (props.isLoaded && props.items.applications.length > 0) {
+        applications_list_empty = false;
+      }
+
+      if (props.isLoaded && !applications_list_empty) {
+        return <JobDescription {...props} selectedJob={state.selectedJob} />;
+      } else {
         return (
-            this.state.items.applications.map((item, index) => (
-                <ApplicationListItem 
-                    key={`application_item_${index}`} 
-                    date={item.date_applied} 
-                    item={item}
-                    index={index}
-                    selectJob = {this.selectJob}
-                />
-            ))
+          <div className="empty_page">
+            <h1>No Jobs Applied</h1>
+            <em data-emoji="anguished" className="big"></em>
+          </div>
         );
-    }
+      }
+    };
 
-    getEmptyApplicationsDiv = () => {
-        return(
-            <div className="empty_page">
-                <h1>No Jobs Applied</h1>
-                <em data-emoji="anguished" className="big"></em>
-            </div>
-        );
-    }
-
-    sortByDate = (order) => {
-        let sortedItems = this.state.items;
-        if(order === "asc"){
-            sortedItems.applications.sort((a, b) => {
-                return Date.parse(a.date_applied) - Date.parse(b.date_applied);
-            });
-        }else{ // descending
-            sortedItems.applications.sort((a, b) => {
-                return Date.parse(b.date_applied) - Date.parse(a.date_applied);
-            });
-        }
-
-        this.setState({items: sortedItems});
-    }
-
-    sortByCompany = (order) => {
-        let sortedItems = this.state.items;
-        if (order === "asc") {
-            sortedItems.applications.sort((a, b) => {
-                if(a.job_company > b.job_company){
-                    return 1;
-                }else{
-                    return -1;
+    return (
+      <div className="homepage">
+        <section className="header-wrapper">
+          <div className="homepage-header">
+            {/* Title and num applications sent */}
+            <h1 className="seek">Seek</h1>
+            <div className="apps-and-progress">
+              <div className="applications">
+                {props.application_count} Applications Sent
+              </div>
+              <div>
+                <Button
+                  className="ui green button"
+                  onClick={() => {
+                    props.pageView();
+                  }}
+                >
+                  Progress Board
+                </Button>
+                {
+                    accInfo.username ? 
+                        <Button
+                            className="ui green button"
+                            onClick={() => {
+                                props.logout();
+                            }}
+                        >
+                            Logout
+                        </Button>
+                    : 
+                        <Login
+                            accInfoDispatch={props.accInfoDispatch}
+                            setHomepageState={setState}
+                        /> 
                 }
-            });
-        } else { // descending
-            sortedItems.applications.sort((a, b) => {
-                if (a.job_company < b.job_company) {
-                    return 1;
-                } else {
-                    return -1;
-                }
-            });
-        }
-
-        this.setState({items: sortedItems});
-    }
-
-    showProgressBoard = () => {
-    }
-
-    render(){
-        let applications_list_empty = true;
-
-        if(this.state.isLoaded && this.state.items.applications.length > 0){
-            applications_list_empty = false;
-        }
-
-        return (
-            <div className="homepage">
-                <section className="header-wrapper">
-                    <div className="homepage-header">
-                        {/* Title and num applications sent */}
-                        <h1 className="seek">Seek</h1>
-                        <div className="apps-and-progress">
-                            <div className="applications">{this.state.application_count} Applications Sent</div>
-                            <Button className="ui green button" onClick={() => {this.showProgressBoard()}}>Progress Board</Button>
-                        </div>
-                    </div>
-                </section>
-                <section className="body">
-                    <div className="ui relaxed selection divided list menu application-catalog selected">
-                        {this.state.items === null ? null : this.loadApplicationsList(this.state.items)}
-                    </div>
-                    <div className="application-description">
-                        {this.state.isLoaded && !applications_list_empty ? <JobDescription {...this.state}/> : this.getEmptyApplicationsDiv()}
-                    </div>
-                </section>
+              </div>
             </div>
-        );
-    }
+          </div>
+        </section>
+        <section className="body">
+          <div className="ui relaxed selection divided list menu application-catalog selected">
+            {props.items === null
+              ? null
+              : loadApplicationsList(props.items)}
+          </div>
+          <div className="application-description">
+            {accInfo.username ? (
+              getJobDescription()
+            ) : (
+              null
+            )}
+          </div>
+        </section>
+      </div>
+    );
+
 }
 
 export default Homepage;
