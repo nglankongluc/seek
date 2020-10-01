@@ -1,5 +1,6 @@
 import React, { useState, useContext } from "react";
 import { Button } from "semantic-ui-react";
+import { Link } from "react-router-dom";
 import JobDescription from "./JobDescription.js";
 import ApplicationListItem from "./ApplicationListItem.js";
 import Login from "./Login.js";
@@ -96,46 +97,34 @@ const Homepage = (props) => {
                 {props.application_count} Applications Sent
               </div>
               <div>
-                <Button
-                  className="ui green button"
-                  onClick={() => {
-                    props.pageView();
-                  }}
-                >
+                <Link className="ui green button" to="/board">
                   Progress Board
-                </Button>
-                {
-                    accInfo.username ? 
-                        <Button
-                            className="ui green button"
-                            onClick={() => {
-                                props.logout();
-                            }}
-                        >
-                            Logout
-                        </Button>
-                    : 
-                        <Login
-                            accInfoDispatch={props.accInfoDispatch}
-                            setHomepageState={setState}
-                        /> 
-                }
+                </Link>
+                {accInfo.username ? (
+                  <Button
+                    className="ui green button"
+                    onClick={() => {
+                      props.logout();
+                    }}
+                  >
+                    Logout
+                  </Button>
+                ) : (
+                  <Login
+                    accInfoDispatch={props.accInfoDispatch}
+                    setHomepageState={setState}
+                  />
+                )}
               </div>
             </div>
           </div>
         </section>
         <section className="body">
           <div className="ui relaxed selection divided list menu application-catalog selected">
-            {props.items === null
-              ? null
-              : loadApplicationsList(props.items)}
+            {props.items === null ? null : loadApplicationsList(props.items)}
           </div>
           <div className="application-description">
-            {accInfo.username ? (
-              getJobDescription()
-            ) : (
-              null
-            )}
+            {accInfo.username ? getJobDescription() : null}
           </div>
         </section>
       </div>

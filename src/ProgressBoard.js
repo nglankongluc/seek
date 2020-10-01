@@ -1,5 +1,6 @@
 // import React, { useState, useEffect } from "react";
 import React from "react";
+import { Link } from "react-router-dom";
 import {Button} from 'semantic-ui-react';
 
 const ProgressBoard = (props) => {
@@ -9,14 +10,9 @@ const ProgressBoard = (props) => {
     return (
       <div>
         <div>Progress Board</div>
-        <Button
-          className="ui green button"
-          onClick={() => {
-            props.pageView();
-          }}
-        >
+        <Link className="ui green button" to="/">
           Back
-        </Button>
+        </Link>
       </div>
     );
 }

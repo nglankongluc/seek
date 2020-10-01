@@ -1,4 +1,5 @@
 import React, { useState, useEffect, useReducer } from "react";
+import { Switch, Route, BrowserRouter} from "react-router-dom";
 import Homepage from "./Homepage.js";
 import ProgressBoard from "./ProgressBoard.js";
 import Error from "./Error.js";
@@ -36,7 +37,6 @@ function accInfoReducer(state, action){
     console.log("DISPATCH CALLED");
     switch(action.type){
         case "signin":
-            console.log("ACTIONS: " + action.username + " " + action.password);
             return {
                 username: action.username,
                 password: action.password,
@@ -85,6 +85,7 @@ const App = () => {
             await client
                 .query({
                     query: gql(listApplications),
+                    fetchPolicy: 'no-cache',
                 })
                 .then(({ data }) => {
                     const applications = data.listApplications.items;
@@ -102,14 +103,6 @@ const App = () => {
       }
     };
 
-    const changeViews = () => {
-        if (state.current_page_view === "homepage") {
-          setState({...state, current_page_view: "progressboard"});
-        } else {
-          setState({ ...state, current_page_view: "homepage" });
-        }
-    };
-
     const logout = () => {
         console.log("Logging out!!!");
         accInfoDispatch({type: "signout"});
@@ -123,22 +116,46 @@ const App = () => {
         });
     };
 
-    if (state.error !== null) {
-        return <Error className="empty_page" error={state.error} />;
-    } else {
-        return state.current_page_view === "homepage" ? (
-            <UserContext.Provider value={accInfo}>
-                <Homepage
-                    {...state}
-                    pageView={changeViews}
-                    logout={() => logout()}
-                    accInfoDispatch={accInfoDispatch}
+    return (
+        <BrowserRouter>
+            <Switch>
+                <Route
+                    exact
+                    path="/"
+                    render={() => (
+                    <UserContext.Provider value={accInfo}>
+                        <Homepage
+                        {...state}
+                        logout={() => logout()}
+                        accInfoDispatch={accInfoDispatch}
+                        />
+                    </UserContext.Provider>
+                    )}
                 />
-            </UserContext.Provider>
-        ) : (
-          <ProgressBoard {...state} pageView={changeViews} />
-        );
-    }
+                <Route
+                    exact
+                    path="/board"
+                    render={() => <ProgressBoard {...state}/>}
+                />
+            </Switch>
+        </BrowserRouter>
+    );
+
+    // if (state.error !== null) {
+    //     return <Error className="empty_page" error={state.error} />;
+    // } else {
+    //     return state.current_page_view === "homepage" ? (
+    //         <UserContext.Provider value={accInfo}>
+    //             <Homepage
+    //                 {...state}
+    //                 logout={() => logout()}
+    //                 accInfoDispatch={accInfoDispatch}
+    //             />
+    //         </UserContext.Provider>
+    //     ) : (
+    //       <ProgressBoard {...state} />
+    //     );
+    // }
 
 }
 
