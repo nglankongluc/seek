@@ -70,6 +70,8 @@ const Homepage = (props) => {
     const getJobDescription = () => {
       let applications_list_empty = true;
 
+      console.log("getting desc..");
+
       if (props.isLoaded && props.items.applications.length > 0) {
         applications_list_empty = false;
       }
@@ -100,7 +102,7 @@ const Homepage = (props) => {
                 <Link className="ui green button" to="/board">
                   Progress Board
                 </Link>
-                {accInfo.username ? (
+                {props.isLoaded ? (
                   <Button
                     className="ui green button"
                     onClick={() => {
@@ -124,7 +126,7 @@ const Homepage = (props) => {
             {props.items === null ? null : loadApplicationsList(props.items)}
           </div>
           <div className="application-description">
-            {accInfo.username ? getJobDescription() : null}
+            {props.isLoaded ? getJobDescription() : null}
           </div>
         </section>
       </div>

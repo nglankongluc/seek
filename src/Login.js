@@ -8,21 +8,24 @@ const SignInComponent = (props) => {
 
     // handle login
     const triggerLogin = async () => {
-      
-        await Auth.signIn(username, password).then(() => {
-            props.accInfoDispatch({
-              type: "signin",
-              username: username,
-              password: password,
-              authToken: null
-            });
-            console.log("WATCHOUT");
-        }
-        ).catch(
-            (err) => console.log(`Error signing in - ${ err }`)
-        );
+        try{
+            await Auth.signIn(username, password)
+            .then(async () => {
+                    const session = (await Auth.currentSession()).getAccessToken()
+                    return session
+            })
+            .then((session) => {
+                props.accInfoDispatch({
+                    type: "signin",
+                    session: session
+                });
+                console.log("WATCHOUT");
+            })
+        }catch(err){
+            console.log(`Error signing in - ${ err }`)
+        };
 
-        props.setOpen(false);
+        props.setOpen(false);    
     }
 
     const saveUsername = (username) => {
@@ -172,12 +175,11 @@ const ConfirmEmailComponent = (props) => {
   const handleSubmitCode = () => {
     Auth.confirmSignUp(props.username, code)
     .then(() => Auth.signIn(props.username, props.password))
-    .then(() => {
+    .then(async () => {return (await Auth.currentSession()).getAccessToken()})
+    .then((session) => {
         props.accInfoDispatch({
             type: "signin",
-            username: props.username,
-            password: props.password,
-            authToken: null
+            session: session
         });
         props.setOpen(false);
     })

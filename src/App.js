@@ -38,16 +38,12 @@ function accInfoReducer(state, action){
     switch(action.type){
         case "signin":
             return {
-                username: action.username,
-                password: action.password,
-                authToken: action.authToken
+                session: action.session
             }
         case "signout":
             console.log("ACTIONS: ");
             return {
-                username: null,
-                password: null,
-                authToken: null
+                session: null
             };
         default:
             return {...state};
@@ -65,47 +61,93 @@ const App = () => {
     });
 
     const [accInfo, accInfoDispatch] = useReducer(accInfoReducer, {
-        username: null,
-        password: null,
-        authToken: null
+        session: null
     })
 
+    // useEffect(() => {
+    //     if (accInfo.username !== null){
+    //         console.log("Found username not null, fetching");
+    //         console.log(accInfo.username);
+    //         fetchData();
+    //     }
+    // }, [accInfo])
+
     useEffect(() => {
-        if (accInfo.username !== null){
-            console.log("Found username not null, fetching");
-            console.log(accInfo.username);
-            fetchData();
+        const loadData = async () => {
+            console.log("Refreshing...")
+            try{
+                const session = (await Auth.currentSession()).getAccessToken()
+                if (!state.isLoaded && session !== null) {
+                    await fetchData()
+                }
+            }catch(err){
+                console.log("No session found.")
+            }
         }
+        loadData();
+        
+    }, []);
+
+    useEffect(() => {
+        console.log("Detected accInfo change")
+        const loadData = async () => {
+            try{
+                const session = (await Auth.currentSession()).getAccessToken()
+                if (!state.isLoaded && state.items !== null){
+                    setState({...state, isLoaded: true})
+                    accInfoDispatch({
+                        type: "signin",
+                        session: session
+                    });
+                }
+            }catch(err){
+                console.log("Error upon state.items change: " + err)
+            }
+        }
+        loadData();
+        
+    }, [state.items]);
+
+    useEffect(() => {
+        const fetchWrapper = async () => {
+            await fetchData()
+        }
+        fetchWrapper();
     }, [accInfo])
 
     const fetchData = async () => {
-      if (accInfo.username) {
-        try {
+        console.log("fetching data...");
+        const session = (await Auth.currentSession()).getAccessToken();
+
+        // if (accInfo.username) {
+        if (session !== null) {
+            console.log("no session, retreiving data")
+          try {
             // get data from graphQL
             await client
-                .query({
-                    query: gql(listApplications),
-                    fetchPolicy: 'no-cache',
-                })
-                .then(({ data }) => {
-                    const applications = data.listApplications.items;
-                    const applicationLength = applications.length;
-                    const items = {
-                    applications_count: applicationLength,
-                    applications: applications,
+              .query({
+                query: gql(listApplications),
+                fetchPolicy: "no-cache",
+              })
+              .then(({ data }) => {
+                const applications = data.listApplications.items;
+                const applicationLength = applications.length;
+                const items = {
+                  applications_count: applicationLength,
+                  applications: applications,
                 };
-                setState({...state, items: items, isLoaded: true});
-            });
-        } catch (err) {
+                setState({ ...state, items: items});
+              });
+          } catch (err) {
             console.log("Error while fetching: " + JSON.stringify(err));
-            setState({...state, error: err});
+            setState({ ...state, error: err });
+          }
         }
-      }
     };
 
     const logout = () => {
         console.log("Logging out!!!");
-        accInfoDispatch({type: "signout"});
+        // accInfoDispatch({type: "signout"});
         Auth.signOut();
         setState({
             ...state, 
@@ -113,6 +155,10 @@ const App = () => {
             error: null,
             items: null,
             application_count: 0
+        });
+        accInfoDispatch({
+            type: "signout",
+            session: null
         });
     };
 
@@ -140,22 +186,6 @@ const App = () => {
             </Switch>
         </BrowserRouter>
     );
-
-    // if (state.error !== null) {
-    //     return <Error className="empty_page" error={state.error} />;
-    // } else {
-    //     return state.current_page_view === "homepage" ? (
-    //         <UserContext.Provider value={accInfo}>
-    //             <Homepage
-    //                 {...state}
-    //                 logout={() => logout()}
-    //                 accInfoDispatch={accInfoDispatch}
-    //             />
-    //         </UserContext.Provider>
-    //     ) : (
-    //       <ProgressBoard {...state} />
-    //     );
-    // }
 
 }
 
